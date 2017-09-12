@@ -1,51 +1,39 @@
 package com.toto.johnwesonga.totoapp;
 
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.toto.johnwesonga.totoapp.adapters.SourceAdapter;
 import com.toto.johnwesonga.totoapp.api.NewsApi;
 import com.toto.johnwesonga.totoapp.api.SourceResponse;
-import com.toto.johnwesonga.totoapp.components.AppComponent;
-import com.toto.johnwesonga.totoapp.model.Article;
 import com.toto.johnwesonga.totoapp.model.Source;
-import com.toto.johnwesonga.totoapp.modules.NewsModule;
 
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.Observable;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.Subject;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements SourceAdapter.ListItemClickListener {
@@ -57,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements SourceAdapter.Lis
     @Inject Retrofit retrofit;
 
     @BindView(R.id.tv_result) TextView mTextView;
+    @BindView(R.id.pb_preloader) ProgressBar mProgressBar;
 
     private RecyclerView sourceRecycleView;
     private RecyclerView.Adapter mAdapter;
@@ -86,19 +75,19 @@ public class MainActivity extends AppCompatActivity implements SourceAdapter.Lis
         mLayoutManager = new LinearLayoutManager(this);
         sourceRecycleView.setLayoutManager(mLayoutManager);
 
-       // loadNewsSources();
-        loadNewsSourcesRx();
+        loadNewsSources();
+       // loadNewsSourcesRx();
 
     }
 
     // load news sources directly using retrofit
     void loadNewsSources(){
-        Call<Source> sources = newsApi.getSources(language);
-        sources.enqueue(new Callback<Source>() {
+        Call<SourceResponse> sources = newsApi.getSources(language);
+        sources.enqueue(new Callback<SourceResponse>() {
             @Override
-            public void onResponse(Call<Source> call, Response<Source> response) {
+            public void onResponse(Call<SourceResponse> call, Response<SourceResponse> response) {
                 if (response.isSuccessful()) {
-                    results = response.body().getSources();
+                    results = response.body().sources;
                     if(mAdapter == null) {
                         mAdapter = new SourceAdapter(results, MainActivity.this);
                         sourceRecycleView.setAdapter(mAdapter);
@@ -112,10 +101,12 @@ public class MainActivity extends AppCompatActivity implements SourceAdapter.Lis
             }
 
             @Override
-            public void onFailure(Call<Source> call, Throwable t) {
+            public void onFailure(Call<SourceResponse> call, Throwable t) {
                 Timber.e(t);
                 mTextView.setText(t.toString());
             }
+
+
         });
 
 
@@ -126,6 +117,13 @@ public class MainActivity extends AppCompatActivity implements SourceAdapter.Lis
         mCompositeDisposable.add(newsApi.getSourcez(language)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        Timber.e(throwable);
+                        mTextView.setText(throwable.toString());
+                    }
+                })
                 .map(new Function<SourceResponse, List<Source>>() {
 
                     @Override
@@ -136,17 +134,28 @@ public class MainActivity extends AppCompatActivity implements SourceAdapter.Lis
 
                     @Override
                     public void accept(@NonNull List<Source> sources) throws Exception {
-                        mAdapter = new SourceAdapter(sources, MainActivity.this);
-                        sourceRecycleView.setAdapter(mAdapter);
+
+                        if (mAdapter == null) {
+                            mAdapter = new SourceAdapter(sources, MainActivity.this);
+                            sourceRecycleView.setAdapter(mAdapter);
+                        }
+
                     }
                 })
         );
 
     }
 
+    @Override
+    protected void onDestroy() {
+        mCompositeDisposable.clear();
+        super.onDestroy();
+
+    }
+
 
     @Override
-    public void onListItemClick(int clickedItemIndex) {
+    public void onListItemClick(int clickedItemIndex, String source) {
         if (mToast != null) {
             mToast.cancel();
         }
@@ -158,10 +167,13 @@ public class MainActivity extends AppCompatActivity implements SourceAdapter.Lis
          *
          *                     Item #42 clicked.
          */
-        String toastMessage = "Item #" + clickedItemIndex + " clicked.";
-        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
+        //String toastMessage = "Item #" + clickedItemIndex + " clicked.";
+        //mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
 
-        mToast.show();
+        Intent articleIntent = new Intent(this, ArticlesActivity.class);
+        articleIntent.putExtra("NEWS_SOURCE", source);
+        startActivity(articleIntent);
+       // mToast.show();
     }
 
 

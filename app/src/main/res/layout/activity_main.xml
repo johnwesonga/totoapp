@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.toto.johnwesonga.totoapp.MainActivity">
 
     <!-- A RecyclerView with some commonly used attributes -->
@@ -13,6 +14,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical" />
+
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/pb_preloader"/>
 
     <TextView
         android:id="@+id/tv_result"

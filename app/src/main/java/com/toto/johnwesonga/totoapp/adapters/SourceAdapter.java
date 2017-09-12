@@ -28,8 +28,6 @@ import timber.log.Timber;
  */
 
 public class SourceAdapter extends RecyclerView.Adapter<SourceAdapter.ViewHolder> {
-
-
     private List<Source> mSources = Collections.emptyList();
     private LayoutInflater mInflater;
 
@@ -40,7 +38,7 @@ public class SourceAdapter extends RecyclerView.Adapter<SourceAdapter.ViewHolder
      */
     public interface ListItemClickListener {
         // refactor and pass row value
-        void onListItemClick(int clickedItemIndex);
+        void onListItemClick(int clickedItemIndex, String newsSource);
     }
 
     public SourceAdapter(List<Source> data, ListItemClickListener listener){
@@ -62,14 +60,7 @@ public class SourceAdapter extends RecyclerView.Adapter<SourceAdapter.ViewHolder
     public void onBindViewHolder(final SourceAdapter.ViewHolder viewHolder, final int position) {
         Source newsSource = mSources.get(position);
         String name = newsSource.getName();
-        //String imageUri = newsSource.getUrlsToLogos().getSmall();
-        //String imageName = mSources.get(position).getUrlsToLogos().getSmall();
         viewHolder.mTextView.setText(name);
-        //viewHolder.mSourceImageView
-        //Picasso.with(viewHolder.mSourceImageView.getContext()).
-         //load(newsSource.getUrlsToLogos().getSmall()).
-         //error(android.R.drawable.stat_notify_error).fit().into(viewHolder.mSourceImageView);
-
 
     }
 
@@ -95,9 +86,10 @@ public class SourceAdapter extends RecyclerView.Adapter<SourceAdapter.ViewHolder
         @Override
         public void onClick(View view) {
             int clickedPosition = getAdapterPosition();
-            Log.i("positon-of-clicked-item", String.valueOf(mTextView.getText()));
+            String source = String.valueOf(mTextView.getText()).replace(" ","-").toLowerCase();
+            Log.i("positon-of-clicked-item", source);
             //String clickedSource = mTextView.getText().toString();
-            mOnClickListener.onListItemClick(clickedPosition);
+            mOnClickListener.onListItemClick(clickedPosition, source);
         }
     }
 

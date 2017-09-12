@@ -9,6 +9,7 @@ import java.util.Map;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
@@ -21,12 +22,17 @@ import retrofit2.http.QueryMap;
 public interface NewsApi {
 
     @GET("articles")
-    Call <Article> getArticles(@QueryMap Map<String, String> options);
+    Observable <ArticlesResponse> getArticles(@QueryMap Map<String, String> options);
+
+    @GET("articles")
+    Observable <Response<ArticlesResponse>> getNewsArticles(@QueryMap Map<String, String> options);
 
     @GET("sources")
-    Call <Source> getSources(@Query("language") String language);
+    Call <SourceResponse> getSources(@Query("language") String language);
 
     @GET("sources")
     Single<SourceResponse> getSourcez(@Query("language") String language);
+
+
 
 }
