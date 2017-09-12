@@ -1,6 +1,7 @@
 package com.toto.johnwesonga.totoapp.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 
 import android.support.v7.widget.CardView;
@@ -54,7 +55,6 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         viewHolder.mArticleTitle.setText(title);
         viewHolder.mArticleDescription.setText(description);
 
-        Timber.d("image url " + article.getUrlToImage());
         Picasso.with(viewHolder.mSourceImageView.getContext())
             .load(uri)
             .error(android.R.drawable.stat_notify_error).fit()
@@ -74,7 +74,11 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         viewHolder.mArticleCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Timber.d("clicked " + article.getUrl());
+                String url = article.getUrl();
+                Timber.d("clicked " + url);
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                view.getContext().startActivity(intent);
             }
         });
     }
