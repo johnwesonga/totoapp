@@ -58,9 +58,11 @@ public class SourceAdapter extends RecyclerView.Adapter<SourceAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(final SourceAdapter.ViewHolder viewHolder, final int position) {
-        Source newsSource = mSources.get(position);
-        String name = newsSource.getName();
-        viewHolder.mTextView.setText(name);
+        Source newsSources = mSources.get(position);
+        String  sourceName = newsSources.getName();
+        viewHolder.mTextView.setText(sourceName);
+        MyTag newsTag = new MyTag(newsSources.getId());
+        viewHolder.mTextView.setTag(newsTag.getId());
 
     }
 
@@ -75,10 +77,12 @@ public class SourceAdapter extends RecyclerView.Adapter<SourceAdapter.ViewHolder
         private TextView mTextView;
         private ImageView mSourceImageView;
 
+
         public ViewHolder(View itemView) {
             super(itemView);
             mTextView = (TextView) itemView.findViewById(R.id.tv_source_name);
             mSourceImageView = (ImageView) itemView.findViewById(R.id.iv_source_image);
+
             itemView.setOnClickListener(this);
         }
 
@@ -86,10 +90,25 @@ public class SourceAdapter extends RecyclerView.Adapter<SourceAdapter.ViewHolder
         @Override
         public void onClick(View view) {
             int clickedPosition = getAdapterPosition();
-            String source = String.valueOf(mTextView.getText()).replace(" ","-").toLowerCase();
-            Log.i("positon-of-clicked-item", source);
-            //String clickedSource = mTextView.getText().toString();
+            String source = mTextView.getTag().toString();
+            Timber.d("positon-of-clicked-item " + mTextView.getTag());
             mOnClickListener.onListItemClick(clickedPosition, source);
+        }
+    }
+
+    public class MyTag{
+        String id;
+        public MyTag(String id){
+            this.id = id;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        @Override
+        public String toString() {
+            return super.toString();
         }
     }
 

@@ -89,6 +89,16 @@ public class ArticlesActivity extends AppCompatActivity {
         mCompositeDisposable.add(newsApi.getNewsArticles(data)
             .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .onErrorReturn(new Function<Throwable, Response<ArticlesResponse>>() {
+                    @Override
+                    public Response<ArticlesResponse> apply(@NonNull Throwable throwable) throws Exception {
+                        Timber.d(throwable);
+                        Toast errorToast = Toast.makeText(ArticlesActivity.this, "Error loading news articles", Toast.LENGTH_LONG);
+                        errorToast.show();
+                        finish();
+                        return null;
+                    }
+                })
                 .subscribe(new Consumer<Response<ArticlesResponse>>() {
                     @Override
                     public void accept(@NonNull Response<ArticlesResponse> articlesResponse) throws Exception {

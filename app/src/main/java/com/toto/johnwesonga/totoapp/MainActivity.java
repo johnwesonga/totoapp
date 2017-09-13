@@ -46,8 +46,8 @@ public class MainActivity extends AppCompatActivity implements SourceAdapter.Lis
 
     @BindView(R.id.tv_result) TextView mTextView;
     @BindView(R.id.pb_preloader) ProgressBar mProgressBar;
+    @BindView(R.id.m_sources_recycles_view) RecyclerView sourceRecycleView;
 
-    private RecyclerView sourceRecycleView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
@@ -68,9 +68,7 @@ public class MainActivity extends AppCompatActivity implements SourceAdapter.Lis
         // inject
         ((MyApplication) getApplication()).getAppComponent().inject(this);
 
-        sourceRecycleView = (RecyclerView) findViewById(R.id.m_sources_recycles_view);
         sourceRecycleView.setHasFixedSize(true);
-
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
         sourceRecycleView.setLayoutManager(mLayoutManager);
@@ -134,7 +132,6 @@ public class MainActivity extends AppCompatActivity implements SourceAdapter.Lis
 
                     @Override
                     public void accept(@NonNull List<Source> sources) throws Exception {
-
                         if (mAdapter == null) {
                             mAdapter = new SourceAdapter(sources, MainActivity.this);
                             sourceRecycleView.setAdapter(mAdapter);
@@ -156,24 +153,10 @@ public class MainActivity extends AppCompatActivity implements SourceAdapter.Lis
 
     @Override
     public void onListItemClick(int clickedItemIndex, String source) {
-        if (mToast != null) {
-            mToast.cancel();
-        }
-
-        // COMPLETED (12) Show a Toast when an item is clicked, displaying that item number that was clicked
-        /*
-         * Create a Toast and store it in our Toast field.
-         * The Toast that shows up will have a message similar to the following:
-         *
-         *                     Item #42 clicked.
-         */
-        //String toastMessage = "Item #" + clickedItemIndex + " clicked.";
-        //mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
-
         Intent articleIntent = new Intent(this, ArticlesActivity.class);
         articleIntent.putExtra("NEWS_SOURCE", source);
         startActivity(articleIntent);
-       // mToast.show();
+
     }
 
 

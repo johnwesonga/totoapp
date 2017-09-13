@@ -6,6 +6,7 @@ import android.net.Uri;
 
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,15 +49,14 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
     @Override
     public void onBindViewHolder(final ArticlesAdapter.ViewHolder viewHolder, int position) {
         final Article article = mArticles.get(position);
-
         String title = article.getTitle();
         String description = article.getDescription();
-        Uri uri = Uri.parse(article.getUrlToImage());
+        String imageUrl = article.getUrlToImage();
         viewHolder.mArticleTitle.setText(title);
         viewHolder.mArticleDescription.setText(description);
 
         Picasso.with(viewHolder.mSourceImageView.getContext())
-            .load(uri)
+            .load(imageUrl)
             .error(android.R.drawable.stat_notify_error).fit()
                 .centerCrop()
                 .into(viewHolder.mSourceImageView, new com.squareup.picasso.Callback() {
@@ -88,7 +88,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         return mArticles.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         private TextView mArticleTitle;
         private TextView mArticleDescription;
         private ImageView mSourceImageView;
@@ -102,6 +102,13 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
             mSourceImageView = (ImageView) itemView.findViewById(R.id.iv_article_image);
             mPreloader = (ProgressBar) itemView.findViewById(R.id.pb_preloader);
             mArticleCardView = (CardView) itemView.findViewById(R.id.article_card_view);
+            itemView.setOnCreateContextMenuListener(this);
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu contextMenu, View view,
+                                        ContextMenu.ContextMenuInfo contextMenuInfo) {
+            contextMenu.setHeaderTitle("Select The Action");
         }
     }
 
